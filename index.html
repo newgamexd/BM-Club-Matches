@@ -53,11 +53,6 @@
   border-radius:8px;
   text-decoration:none;
   font-size:13px;
-  transition:.2s;
-}
-
-.btn:hover{
-  background:#ff5555;
 }
 </style>
 
@@ -80,10 +75,13 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
       ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
       : "Unknown time";
 
+    // 👇 QUAN TRỌNG: dùng web_url nếu có
+    const joinLink = m.web_url || m.url;
+
     return `
       <div class="match">
         <div class="text">⚔️ ${matchName}, "${date}"</div>
-        <a class="btn" href="${m.url}" target="_blank">
+        <a class="btn" href="${joinLink}" target="_blank">
           🚀 Tham gia match
         </a>
       </div>
