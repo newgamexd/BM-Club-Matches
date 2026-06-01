@@ -14,6 +14,7 @@
   box-shadow:0 0 18px rgba(255,0,0,.5);
   font-family:Arial;
   color:#fff;
+  overflow:hidden;
 }
 
 .header{
@@ -53,6 +54,11 @@
   border-radius:8px;
   text-decoration:none;
   font-size:13px;
+  transition:.2s;
+}
+
+.btn:hover{
+  background:#ff5555;
 }
 </style>
 
@@ -63,9 +69,9 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
 
   const upcoming = data.registered || [];
 
-  upcoming.sort((a,b) => a.start_time - b.start_time);
+  upcoming.sort((a, b) => a.start_time - b.start_time);
 
-  const latest = upcoming.slice(0,3);
+  const latest = upcoming.slice(0, 3);
 
   document.getElementById("matches").innerHTML = latest.map(m => {
 
@@ -75,8 +81,10 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
       ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
       : "Unknown time";
 
-    // 👇 QUAN TRỌNG: dùng web_url nếu có
-    const joinLink = m.web_url || m.url;
+    // ✅ LINK ĐÚNG: trang match thật
+    const joinLink = m.id
+      ? `https://www.chess.com/club/matches/${m.id}`
+      : m.url;
 
     return `
       <div class="match">
@@ -89,7 +97,7 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
   }).join("");
 
 })
-.catch(()=>{
+.catch(() => {
   document.getElementById("matches").innerHTML =
     "<div class='match'>Không tải được dữ liệu</div>";
 });
