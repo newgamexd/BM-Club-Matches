@@ -1,5 +1,5 @@
 <div id="club-widget">
-  <div class="header">Sự Kiện Tiếp Theo</div>
+  <div class="header">📅 Sự Kiện Sắp Tới</div>
   <div id="matches">Loading...</div>
 </div>
 
@@ -14,7 +14,6 @@
   box-shadow:0 0 15px rgba(255,0,0,.5);
   font-family:Arial,sans-serif;
   color:#fff;
-  overflow:hidden;
 }
 
 .header{
@@ -24,7 +23,6 @@
   color:#ff4d4d;
   margin-bottom:15px;
   text-shadow:0 0 10px #ff0000;
-  animation:pulse 2s infinite;
 }
 
 .match{
@@ -34,74 +32,48 @@
   padding:12px;
   margin:10px 0;
   transition:.3s;
-  animation:slideIn .6s ease forwards;
 }
 
 .match:hover{
-  transform:translateY(-3px) scale(1.02);
-  border-color:#ff5555;
+  transform:scale(1.02);
   box-shadow:0 0 12px rgba(255,0,0,.4);
 }
 
-.opponent{
-  font-size:18px;
-  font-weight:bold;
-  color:#ff6666;
-}
-
-.info{
-  margin-top:4px;
-  color:#ddd;
-  font-size:14px;
-}
-
-@keyframes pulse{
-  0%,100%{text-shadow:0 0 10px #ff0000;}
-  50%{text-shadow:0 0 20px #ff5555;}
-}
-
-@keyframes slideIn{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
+.text{
+  font-size:16px;
+  color:#ffdddd;
 }
 </style>
 
 <script>
 fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
-.then(r=>r.json())
-.then(data=>{
+.then(r => r.json())
+.then(data => {
 
-  const matches=[
-    ...(data.in_progress||[]),
-    ...(data.registered||[]),
-    ...(data.finished||[])
-  ];
+  const upcoming = data.registered || [];
 
-  matches.sort((a,b)=>(b.start_time||0)-(a.start_time||0));
+  upcoming.sort((a,b) => (a.start_time || 0) - (b.start_time || 0));
 
-  const latest=matches.slice(0,3);
+  const latest = upcoming.slice(0,3);
 
-  document.getElementById("matches").innerHTML=latest.map((m,i)=>`
-    <div class="match" style="animation-delay:${i*0.15}s">
-      <div class="opponent">⚔️ ${m.opponent || "Unknown"}</div>
-      <div class="info">
-        ${m.time_class || "Club Match"}
+  document.getElementById("matches").innerHTML = latest.map(m => {
+
+    const date = m.start_time
+      ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
+      : "Unknown time";
+
+    const opponent = m.opponent || "Unknown";
+
+    return `
+      <div class="match">
+        <div class="text">⚔️ "${opponent}", "${date}"</div>
       </div>
-      <div class="info">
-        ${m.result || "Upcoming"}
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
 })
-.catch(()=>{
-  document.getElementById("matches").innerHTML=
-    "<div class='match'>Unable to load matches.</div>";
+.catch(() => {
+  document.getElementById("matches").innerHTML =
+    "<div class='match'>Không tải được dữ liệu</div>";
 });
-  </script>
+</script>
