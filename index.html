@@ -31,7 +31,7 @@
   border-radius:12px;
   padding:12px;
   margin:10px 0;
-  transition:.3s;
+  transition:.2s;
 }
 
 .match:hover{
@@ -41,13 +41,13 @@
 
 .text{
   font-size:15px;
-  margin-bottom:8px;
   color:#ffd6d6;
 }
 
 .btn{
   display:inline-block;
-  padding:6px 10px;
+  margin-top:8px;
+  padding:6px 12px;
   background:#ff3333;
   color:#fff;
   border-radius:8px;
@@ -62,41 +62,33 @@
 </style>
 
 <script>
-async function getClubName(url){
-  const res = await fetch(url);
-  const data = await res.json();
-  return data.name || "Unknown Club";
-}
-
 fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
 .then(r => r.json())
-.then(async data => {
+.then(data => {
 
   const upcoming = data.registered || [];
-  upcoming.sort((a,b)=>a.start_time-b.start_time);
+
+  upcoming.sort((a,b) => a.start_time - b.start_time);
 
   const latest = upcoming.slice(0,3);
 
-  const html = await Promise.all(latest.map(async m => {
+  document.getElementById("matches").innerHTML = latest.map(m => {
 
-    const opponentUrl = m.opponent?.url;
-    const opponentName = opponentUrl
-      ? await getClubName(opponentUrl)
-      : "Unknown Club";
+    const matchName = m.name || "Club Match";
 
     const date = m.start_time
-      ? new Date(m.start_time*1000).toLocaleString("vi-VN")
+      ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
       : "Unknown time";
 
     return `
       <div class="match">
-        <div class="text">⚔️ "${opponentName}", "${date}"</div>
-        <a class="btn" href="${m.url}" target="_blank">Tham gia match</a>
+        <div class="text">⚔️ ${matchName}, "${date}"</div>
+        <a class="btn" href="${m.url}" target="_blank">
+          🚀 Tham gia match
+        </a>
       </div>
     `;
-  }));
-
-  document.getElementById("matches").innerHTML = html.join("");
+  }).join("");
 
 })
 .catch(()=>{
