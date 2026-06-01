@@ -1,0 +1,107 @@
+<div id="club-widget">
+  <div class="header">Sự Kiện Tiếp Theo</div>
+  <div id="matches">Loading...</div>
+</div>
+
+<style>
+#club-widget{
+  max-width:500px;
+  margin:auto;
+  padding:15px;
+  background:#120000;
+  border:2px solid #ff3333;
+  border-radius:15px;
+  box-shadow:0 0 15px rgba(255,0,0,.5);
+  font-family:Arial,sans-serif;
+  color:#fff;
+  overflow:hidden;
+}
+
+.header{
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:#ff4d4d;
+  margin-bottom:15px;
+  text-shadow:0 0 10px #ff0000;
+  animation:pulse 2s infinite;
+}
+
+.match{
+  background:rgba(255,0,0,.08);
+  border:1px solid rgba(255,80,80,.4);
+  border-radius:12px;
+  padding:12px;
+  margin:10px 0;
+  transition:.3s;
+  animation:slideIn .6s ease forwards;
+}
+
+.match:hover{
+  transform:translateY(-3px) scale(1.02);
+  border-color:#ff5555;
+  box-shadow:0 0 12px rgba(255,0,0,.4);
+}
+
+.opponent{
+  font-size:18px;
+  font-weight:bold;
+  color:#ff6666;
+}
+
+.info{
+  margin-top:4px;
+  color:#ddd;
+  font-size:14px;
+}
+
+@keyframes pulse{
+  0%,100%{text-shadow:0 0 10px #ff0000;}
+  50%{text-shadow:0 0 20px #ff5555;}
+}
+
+@keyframes slideIn{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+</style>
+
+<script>
+fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
+.then(r=>r.json())
+.then(data=>{
+
+  const matches=[
+    ...(data.in_progress||[]),
+    ...(data.registered||[]),
+    ...(data.finished||[])
+  ];
+
+  matches.sort((a,b)=>(b.start_time||0)-(a.start_time||0));
+
+  const latest=matches.slice(0,3);
+
+  document.getElementById("matches").innerHTML=latest.map((m,i)=>`
+    <div class="match" style="animation-delay:${i*0.15}s">
+      <div class="opponent">⚔️ ${m.opponent || "Unknown"}</div>
+      <div class="info">
+        ${m.time_class || "Club Match"}
+      </div>
+      <div class="info">
+        ${m.result || "Upcoming"}
+      </div>
+    </div>
+  `).join("");
+
+})
+.catch(()=>{
+  document.getElementById("matches").innerHTML=
+    "<div class='match'>Unable to load matches.</div>";
+});
+  </script>
