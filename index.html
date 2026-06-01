@@ -61,32 +61,27 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
 .then(r => r.json())
 .then(data => {
 
-  const upcoming = data.registered || [];
+  const matches = data.registered || [];
 
-  upcoming.sort((a,b)=>a.start_time - b.start_time);
+  matches.sort((a,b)=>a.start_time - b.start_time);
 
-  const latest = upcoming.slice(0,3);
+  const latest = matches.slice(0,3);
 
   document.getElementById("matches").innerHTML = latest.map(m => {
 
-    const matchName = m.name || "Club Match";
+    const name = m.name || "Club Match";
 
     const date = m.start_time
       ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
       : "Unknown time";
 
-    // ✅ FIX CHÍNH: convert API URL → web URL
-    let matchId = m.id;
-
-    if (!matchId && m.url) {
-      matchId = m.url.split("/").pop();
-    }
+    const matchId = m.id;
 
     const joinLink = `https://www.chess.com/club/matches/${matchId}`;
 
     return `
       <div class="match">
-        <div class="text">⚔️ ${matchName}, "${date}"</div>
+        <div class="text">⚔️ ${name}, "${date}"</div>
         <a class="btn" href="${joinLink}" target="_blank">
           🚀 Tham gia match
         </a>
@@ -95,7 +90,7 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
   }).join("");
 
 })
-.catch(()=>{
+.catch(() => {
   document.getElementById("matches").innerHTML =
     "<div class='match'>Không tải được dữ liệu</div>";
 });
