@@ -75,9 +75,10 @@ fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
       ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
       : "Unknown time";
 
-    const matchId = m.id;
-
-    const joinLink = `https://www.chess.com/club/matches/${matchId}`;
+    // ✅ FIX CHUẨN NHẤT: convert API → web
+    const joinLink = m.url
+      ? m.url.replace("https://api.chess.com/pub", "https://www.chess.com")
+      : "#";
 
     return `
       <div class="match">
