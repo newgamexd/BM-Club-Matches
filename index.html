@@ -5,14 +5,14 @@
 
 <style>
 #club-widget{
-  max-width:500px;
+  max-width:520px;
   margin:auto;
   padding:15px;
   background:#120000;
   border:2px solid #ff3333;
   border-radius:15px;
-  box-shadow:0 0 15px rgba(255,0,0,.5);
-  font-family:Arial,sans-serif;
+  box-shadow:0 0 18px rgba(255,0,0,.5);
+  font-family:Arial;
   color:#fff;
 }
 
@@ -22,7 +22,7 @@
   font-weight:bold;
   color:#ff4d4d;
   margin-bottom:15px;
-  text-shadow:0 0 10px #ff0000;
+  text-shadow:0 0 10px red;
 }
 
 .match{
@@ -40,39 +40,66 @@
 }
 
 .text{
-  font-size:16px;
-  color:#ffdddd;
+  font-size:15px;
+  margin-bottom:8px;
+  color:#ffd6d6;
+}
+
+.btn{
+  display:inline-block;
+  padding:6px 10px;
+  background:#ff3333;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
+  font-size:13px;
+  transition:.2s;
+}
+
+.btn:hover{
+  background:#ff5555;
 }
 </style>
 
 <script>
+async function getClubName(url){
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.name || "Unknown Club";
+}
+
 fetch("https://api.chess.com/pub/club/blunder-master-vn/matches")
 .then(r => r.json())
-.then(data => {
+.then(async data => {
 
   const upcoming = data.registered || [];
-
-  upcoming.sort((a,b) => (a.start_time || 0) - (b.start_time || 0));
+  upcoming.sort((a,b)=>a.start_time-b.start_time);
 
   const latest = upcoming.slice(0,3);
 
-  document.getElementById("matches").innerHTML = latest.map(m => {
+  const html = await Promise.all(latest.map(async m => {
+
+    const opponentUrl = m.opponent?.url;
+    const opponentName = opponentUrl
+      ? await getClubName(opponentUrl)
+      : "Unknown Club";
 
     const date = m.start_time
-      ? new Date(m.start_time * 1000).toLocaleString("vi-VN")
+      ? new Date(m.start_time*1000).toLocaleString("vi-VN")
       : "Unknown time";
-
-    const opponent = m.opponent || "Unknown";
 
     return `
       <div class="match">
-        <div class="text">⚔️ "${opponent}", "${date}"</div>
+        <div class="text">⚔️ "${opponentName}", "${date}"</div>
+        <a class="btn" href="${m.url}" target="_blank">Tham gia match</a>
       </div>
     `;
-  }).join("");
+  }));
+
+  document.getElementById("matches").innerHTML = html.join("");
 
 })
-.catch(() => {
+.catch(()=>{
   document.getElementById("matches").innerHTML =
     "<div class='match'>Không tải được dữ liệu</div>";
 });
